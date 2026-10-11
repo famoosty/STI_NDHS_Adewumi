@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supplementary File 2: R Analysis Script</title>
+<style>
+:root{--bg:#fbfaf7;--paper:#fff;--ink:#1d2327;--muted:#5d6872;--line:#e4e1d9;--accent:#0f6b5c;
+--code-bg:#f6f5f1;--cm:#7a8691;--st:#a8461d;--nu:#7b3fa0;--fn:#1458a8;--kw:#b0225a;--op:#0f6b5c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181b;--paper:#1b2024;--ink:#e6e8ea;--muted:#9aa5ae;
+--line:#2c3338;--accent:#4fc2a8;--code-bg:#161a1d;--cm:#7f8b95;--st:#e8a07a;--nu:#c99ae6;--fn:#7fb6f2;--kw:#f28ab2;--op:#4fc2a8}}
+*{box-sizing:border-box}
+.wrap>*{min-width:0}
+.ic{display:inline;font:13px ui-monospace,Menlo,Consolas,monospace;padding:1px 5px;background:var(--code-bg);border-radius:4px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Georgia,"Iowan Old Style",serif}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 16px 80px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:40px}
+header{grid-column:1/-1;border-bottom:2px solid var(--ink);padding-bottom:22px}
+.eyebrow{font:600 12px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:clamp(24px,3.6vw,36px);line-height:1.2;margin:12px 0 8px;font-weight:600}
+.sub{color:var(--muted);margin:0}
+.note{font:14px/1.5 system-ui,sans-serif;color:var(--muted);margin-top:16px;max-width:760px}
+nav{position:sticky;top:20px;align-self:start;font:14px/1.35 system-ui,sans-serif}
+nav h3{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+nav ol{list-style:none;margin:0;padding:0}
+nav a{display:flex;gap:10px;padding:6px 8px;border-radius:6px;color:var(--ink);text-decoration:none}
+nav a:hover{background:var(--code-bg)}
+.tn{color:var(--accent);font-variant-numeric:tabular-nums;min-width:18px;font-weight:600}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;margin-bottom:22px;overflow:hidden;scroll-margin-top:20px}
+h2{display:flex;align-items:center;gap:12px;margin:0;padding:14px 18px;font:600 15px/1.3 system-ui,sans-serif;border-bottom:1px solid var(--line)}
+.end h2{border:0}
+.num{display:inline-grid;place-items:center;min-width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--paper);font-size:13px}
+.copy{margin-left:auto;font:500 12px system-ui,sans-serif;color:var(--muted);background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+.copy:hover{color:var(--ink);border-color:var(--muted)}
+pre{margin:0;background:var(--code-bg);padding:14px 0;overflow-x:auto}
+code{font:13.5px/1.6 ui-monospace,"SF Mono",Menlo,Consolas,monospace;display:block;white-space:pre;padding-right:18px}
+.ln::before{content:attr(data-n);display:inline-block;width:3.2em;padding-right:1em;margin-right:.8em;text-align:right;color:var(--muted);opacity:.6;border-right:1px solid var(--line);user-select:none}
+.cm{color:var(--cm);font-style:italic}.st{color:var(--st)}.nu{color:var(--nu)}.fn{color:var(--fn)}.kw{color:var(--kw);font-weight:600}.op{color:var(--op)}
+footer{grid-column:2;font:13px system-ui,sans-serif;color:var(--muted)}
+@media (max-width:860px){.wrap{grid-template-columns:1fr;gap:24px}nav{position:static}footer{grid-column:1}}
+@media print{body{background:#fff}nav,.copy{display:none}.wrap{display:block;padding:0}section{break-inside:auto;border-color:#ccc}
+pre{white-space:pre-wrap}code{white-space:pre-wrap;font-size:10.5px}}
+</style></head><body>
+<div class="wrap">
+<header>
+<div class="eyebrow">Supplementary File 2 · R analysis script</div>
+<h1>Care-seeking for sexually transmitted infections and STI-related symptoms among Nigerian women</h1>
+<p class="sub">NDHS 2023-24</p>
+<p class="note">Complete analysis code (R, packages <code class="ic">haven</code>, <code class="ic">dplyr</code>, <code class="ic">survey</code>). Line numbers match the original <code class="ic">STI_script.R</code>. The NDHS dataset is not distributed with this code; it must be obtained through the DHS Program data-access process.</p>
+</header>
+<nav aria-label="Sections"><h3>Contents</h3><ol><li><a href="#s0"><span class="tn">1</span>Packages</a></li><li><a href="#s1"><span class="tn">2</span>Load master dataset</a></li><li><a href="#s2"><span class="tn">3</span>Define study 2 analytical population</a></li><li><a href="#s3"><span class="tn">4</span>Reported STI-related conditions/symptoms</a></li><li><a href="#s4"><span class="tn">5</span>Survey design</a></li><li><a href="#s5"><span class="tn">6</span>Table 1: characteristics and care-seeking</a></li><li><a href="#s6"><span class="tn">7</span>Crude education model</a></li><li><a href="#s7"><span class="tn">8</span>Crude wealth model</a></li><li><a href="#s8"><span class="tn">9</span>Final multivariable model</a></li><li><a href="#s9"><span class="tn">10</span>Wealth trend analysis</a></li><li><a href="#s10"><span class="tn">11</span>Condition/symptom burden</a></li><li><a href="#s11"><span class="tn">12</span>Crude burden model</a></li><li><a href="#s12"><span class="tn">13</span>Adjusted burden model</a></li><li><a href="#s13"><span class="tn">14</span>Burden trend model</a></li><li><a href="#s14"><span class="tn">15</span>Sources of advice/treatment</a></li><li><a href="#s15"><span class="tn">16</span>Survey-weighted source-of-care estimates</a></li><li><a href="#s16"><span class="tn">17</span>End of core study 2 analysis</a></li></ol></nav>
+<main>
+<section id="s0">
+<h2><span class="num">1</span>Packages<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="12"></span><span class="kw">library</span>(haven)
+<span class="ln" data-n="13"></span><span class="kw">library</span>(dplyr)
+<span class="ln" data-n="14"></span><span class="kw">library</span>(survey)
+<span class="ln" data-n="15"></span> 
+<span class="ln" data-n="16"></span><span class="fn">options</span>(survey.lonely.psu = <span class="st">&quot;adjust&quot;</span>)</code></pre><textarea hidden>library(haven)
+library(dplyr)
+library(survey)
+
+options(survey.lonely.psu = &quot;adjust&quot;)</textarea>
+</section><section id="s1">
+<h2><span class="num">2</span>Load master dataset<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="23"></span><span class="cm"># The NDHS dataset is not distributed with this analysis code.</span>
+<span class="ln" data-n="24"></span><span class="cm"># Researchers should obtain the authorised dataset through the</span>
+<span class="ln" data-n="25"></span><span class="cm"># DHS data-access process and specify its local file path below.</span>
+<span class="ln" data-n="26"></span> 
+<span class="ln" data-n="27"></span>data_path <span class="op">&lt;-</span> <span class="st">&quot;PATH_TO_NDHS_2024_master.rds&quot;</span>
+<span class="ln" data-n="28"></span> 
+<span class="ln" data-n="29"></span>ndhs <span class="op">&lt;-</span> <span class="fn">readRDS</span>(data_path)
+<span class="ln" data-n="30"></span> 
+<span class="ln" data-n="31"></span><span class="fn">dim</span>(ndhs)</code></pre><textarea hidden># The NDHS dataset is not distributed with this analysis code.
+# Researchers should obtain the authorised dataset through the
+# DHS data-access process and specify its local file path below.
+
+data_path &lt;- &quot;PATH_TO_NDHS_2024_master.rds&quot;
+
+ndhs &lt;- readRDS(data_path)
+
+dim(ndhs)</textarea>
+</section><section id="s2">
+<h2><span class="num">3</span>Define study 2 analytical population<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="37"></span><span class="cm"># Women reporting at least one of:</span>
+<span class="ln" data-n="38"></span><span class="cm"># V763A = STI in last 12 months</span>
+<span class="ln" data-n="39"></span><span class="cm"># V763B = genital sore/ulcer</span>
+<span class="ln" data-n="40"></span><span class="cm"># V763C = genital discharge</span>
+<span class="ln" data-n="41"></span><span class="cm"># V763D = genital itching</span>
+<span class="ln" data-n="42"></span> 
+<span class="ln" data-n="43"></span>study2_eligible_v770 <span class="op">&lt;-</span> <span class="fn">with</span>(
+<span class="ln" data-n="44"></span>  ndhs,
+<span class="ln" data-n="45"></span>  V763A <span class="op">==</span> <span class="nu">1</span> <span class="op">|</span>
+<span class="ln" data-n="46"></span>    V763B <span class="op">==</span> <span class="nu">1</span> <span class="op">|</span>
+<span class="ln" data-n="47"></span>    V763C <span class="op">==</span> <span class="nu">1</span> <span class="op">|</span>
+<span class="ln" data-n="48"></span>    V763D <span class="op">==</span> <span class="nu">1</span>
+<span class="ln" data-n="49"></span>)
+<span class="ln" data-n="50"></span> 
+<span class="ln" data-n="51"></span> 
+<span class="ln" data-n="52"></span><span class="cm"># Check eligibility</span>
+<span class="ln" data-n="53"></span><span class="fn">table</span>(
+<span class="ln" data-n="54"></span>  study2_eligible_v770,
+<span class="ln" data-n="55"></span>  useNA = <span class="st">&quot;ifany&quot;</span>
+<span class="ln" data-n="56"></span>)
+<span class="ln" data-n="57"></span> 
+<span class="ln" data-n="58"></span> 
+<span class="ln" data-n="59"></span><span class="cm"># Check that all eligible women have valid V770</span>
+<span class="ln" data-n="60"></span><span class="fn">table</span>(
+<span class="ln" data-n="61"></span>  study2_eligible_v770,
+<span class="ln" data-n="62"></span>  <span class="fn">is.na</span>(ndhs<span class="op">$</span>V770),
+<span class="ln" data-n="63"></span>  useNA = <span class="st">&quot;ifany&quot;</span>
+<span class="ln" data-n="64"></span>)
+<span class="ln" data-n="65"></span> 
+<span class="ln" data-n="66"></span> 
+<span class="ln" data-n="67"></span><span class="cm"># Create analytical dataset</span>
+<span class="ln" data-n="68"></span>study2_data <span class="op">&lt;-</span> ndhs <span class="op">%&gt;%</span>
+<span class="ln" data-n="69"></span>  <span class="fn">filter</span>(study2_eligible_v770)
+<span class="ln" data-n="70"></span> 
+<span class="ln" data-n="71"></span> 
+<span class="ln" data-n="72"></span><span class="cm"># Check analytical population</span>
+<span class="ln" data-n="73"></span><span class="fn">dim</span>(study2_data)
+<span class="ln" data-n="74"></span> 
+<span class="ln" data-n="75"></span> 
+<span class="ln" data-n="76"></span><span class="cm"># Check outcome</span>
+<span class="ln" data-n="77"></span><span class="fn">table</span>(
+<span class="ln" data-n="78"></span>  study2_data<span class="op">$</span>V770,
+<span class="ln" data-n="79"></span>  useNA = <span class="st">&quot;ifany&quot;</span>
+<span class="ln" data-n="80"></span>)
+<span class="ln" data-n="81"></span> 
+<span class="ln" data-n="82"></span><span class="fn">prop.table</span>(
+<span class="ln" data-n="83"></span>  <span class="fn">table</span>(study2_data<span class="op">$</span>V770)
+<span class="ln" data-n="84"></span>) <span class="op">*</span> <span class="nu">100</span></code></pre><textarea hidden># Women reporting at least one of:
+# V763A = STI in last 12 months
+# V763B = genital sore/ulcer
+# V763C = genital discharge
+# V763D = genital itching
+
+study2_eligible_v770 &lt;- with(
+  ndhs,
+  V763A == 1 |
+    V763B == 1 |
+    V763C == 1 |
+    V763D == 1
+)
+
+
+# Check eligibility
+table(
+  study2_eligible_v770,
+  useNA = &quot;ifany&quot;
+)
+
+
+# Check that all eligible women have valid V770
+table(
+  study2_eligible_v770,
+  is.na(ndhs$V770),
+  useNA = &quot;ifany&quot;
+)
+
+
+# Create analytical dataset
+study2_data &lt;- ndhs %&gt;%
+  filter(study2_eligible_v770)
+
+
+# Check analytical population
+dim(study2_data)
+
+
+# Check outcome
+table(
+  study2_data$V770,
+  useNA = &quot;ifany&quot;
+)
+
+prop.table(
+  table(study2_data$V770)
+) * 100</textarea>
+</section><section id="s3">
+<h2><span class="num">4</span>Reported STI-related conditions/symptoms<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="91"></span>study2_data<span class="op">$</span>n_reported_conditions <span class="op">&lt;-</span>
+<span class="ln" data-n="92"></span>  (study2_data<span class="op">$</span>V763A <span class="op">==</span> <span class="nu">1</span>) <span class="op">+</span>
+<span class="ln" data-n="93"></span>  (study2_data<span class="op">$</span>V763B <span class="op">==</span> <span class="nu">1</span>) <span class="op">+</span>
+<span class="ln" data-n="94"></span>  (study2_data<span class="op">$</span>V763C <span class="op">==</span> <span class="nu">1</span>) <span class="op">+</span>
+<span class="ln" data-n="95"></span>  (study2_data<span class="op">$</span>V763D <span class="op">==</span> <span class="nu">1</span>)
+<span class="ln" data-n="96"></span> 
+<span class="ln" data-n="97"></span> 
+<span class="ln" data-n="98"></span><span class="fn">table</span>(
+<span class="ln" data-n="99"></span>  study2_data<span class="op">$</span>n_reported_conditions,
+<span class="ln" data-n="100"></span>  useNA = <span class="st">&quot;ifany&quot;</span>
+<span class="ln" data-n="101"></span>)
+<span class="ln" data-n="102"></span> 
+<span class="ln" data-n="103"></span> 
+<span class="ln" data-n="104"></span><span class="cm"># Create binary outcome for regression</span>
+<span class="ln" data-n="105"></span>study2_data<span class="op">$</span>care_sought <span class="op">&lt;-</span> <span class="fn">ifelse</span>(
+<span class="ln" data-n="106"></span>  study2_data<span class="op">$</span>V770 <span class="op">==</span> <span class="nu">1</span>,
+<span class="ln" data-n="107"></span>  <span class="nu">1</span>,
+<span class="ln" data-n="108"></span>  <span class="nu">0</span>
+<span class="ln" data-n="109"></span>)
+<span class="ln" data-n="110"></span> 
+<span class="ln" data-n="111"></span> 
+<span class="ln" data-n="112"></span><span class="cm"># Factor version for categorical burden analysis</span>
+<span class="ln" data-n="113"></span>study2_data<span class="op">$</span>burden_cat <span class="op">&lt;-</span> <span class="fn">factor</span>(
+<span class="ln" data-n="114"></span>  study2_data<span class="op">$</span>n_reported_conditions,
+<span class="ln" data-n="115"></span>  levels = <span class="nu">1</span>:<span class="nu">4</span>,
+<span class="ln" data-n="116"></span>  labels = <span class="fn">c</span>(<span class="st">&quot;1&quot;</span>, <span class="st">&quot;2&quot;</span>, <span class="st">&quot;3&quot;</span>, <span class="st">&quot;4&quot;</span>)
+<span class="ln" data-n="117"></span>)</code></pre><textarea hidden>study2_data$n_reported_conditions &lt;-
+  (study2_data$V763A == 1) +
+  (study2_data$V763B == 1) +
+  (study2_data$V763C == 1) +
+  (study2_data$V763D == 1)
+
+
+table(
+  study2_data$n_reported_conditions,
+  useNA = &quot;ifany&quot;
+)
+
+
+# Create binary outcome for regression
+study2_data$care_sought &lt;- ifelse(
+  study2_data$V770 == 1,
+  1,
+  0
+)
+
+
+# Factor version for categorical burden analysis
+study2_data$burden_cat &lt;- factor(
+  study2_data$n_reported_conditions,
+  levels = 1:4,
+  labels = c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;, &quot;4&quot;)
+)</textarea>
+</section><section id="s4">
+<h2><span class="num">5</span>Survey design<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="124"></span>study2_design <span class="op">&lt;-</span> <span class="fn">svydesign</span>(
+<span class="ln" data-n="125"></span>  ids = <span class="op">~</span>V021,
+<span class="ln" data-n="126"></span>  strata = <span class="op">~</span>V022,
+<span class="ln" data-n="127"></span>  weights = <span class="op">~</span><span class="fn">I</span>(V005 <span class="op">/</span> <span class="nu">1000000</span>),
+<span class="ln" data-n="128"></span>  data = study2_data,
+<span class="ln" data-n="129"></span>  nest = <span class="kw">TRUE</span>
+<span class="ln" data-n="130"></span>)
+<span class="ln" data-n="131"></span> 
+<span class="ln" data-n="132"></span> 
+<span class="ln" data-n="133"></span>study2_design
+<span class="ln" data-n="134"></span> 
+<span class="ln" data-n="135"></span> 
+<span class="ln" data-n="136"></span><span class="cm"># Overall weighted care-seeking</span>
+<span class="ln" data-n="137"></span><span class="fn">svymean</span>(
+<span class="ln" data-n="138"></span>  <span class="op">~</span><span class="fn">I</span>(V770 <span class="op">==</span> <span class="nu">1</span>),
+<span class="ln" data-n="139"></span>  study2_design
+<span class="ln" data-n="140"></span>)</code></pre><textarea hidden>study2_design &lt;- svydesign(
+  ids = ~V021,
+  strata = ~V022,
+  weights = ~I(V005 / 1000000),
+  data = study2_data,
+  nest = TRUE
+)
+
+
+study2_design
+
+
+# Overall weighted care-seeking
+svymean(
+  ~I(V770 == 1),
+  study2_design
+)</textarea>
+</section><section id="s5">
+<h2><span class="num">6</span>Table 1: characteristics and care-seeking<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="149"></span><span class="cm"># ---- Education ----</span>
+<span class="ln" data-n="150"></span> 
+<span class="ln" data-n="151"></span>table1_education <span class="op">&lt;-</span> <span class="fn">svyby</span>(
+<span class="ln" data-n="152"></span>  <span class="op">~</span><span class="fn">I</span>(V770 <span class="op">==</span> <span class="nu">1</span>),
+<span class="ln" data-n="153"></span>  <span class="op">~</span>V106,
+<span class="ln" data-n="154"></span>  study2_design,
+<span class="ln" data-n="155"></span>  svymean,
+<span class="ln" data-n="156"></span>  vartype = <span class="st">&quot;ci&quot;</span>,
+<span class="ln" data-n="157"></span>  na.rm = <span class="kw">TRUE</span>
+<span class="ln" data-n="158"></span>)
+<span class="ln" data-n="159"></span> 
+<span class="ln" data-n="160"></span>table1_education
+<span class="ln" data-n="161"></span> 
+<span class="ln" data-n="162"></span> 
+<span class="ln" data-n="163"></span><span class="cm"># ---- Wealth ----</span>
+<span class="ln" data-n="164"></span> 
+<span class="ln" data-n="165"></span>table1_wealth <span class="op">&lt;-</span> <span class="fn">svyby</span>(
+<span class="ln" data-n="166"></span>  <span class="op">~</span><span class="fn">I</span>(V770 <span class="op">==</span> <span class="nu">1</span>),
+<span class="ln" data-n="167"></span>  <span class="op">~</span>V190,
+<span class="ln" data-n="168"></span>  study2_design,
+<span class="ln" data-n="169"></span>  svymean,
+<span class="ln" data-n="170"></span>  vartype = <span class="st">&quot;ci&quot;</span>,
+<span class="ln" data-n="171"></span>  na.rm = <span class="kw">TRUE</span>
+<span class="ln" data-n="172"></span>)
+<span class="ln" data-n="173"></span> 
+<span class="ln" data-n="174"></span>table1_wealth
+<span class="ln" data-n="175"></span> 
+<span class="ln" data-n="176"></span> 
+<span class="ln" data-n="177"></span><span class="cm"># ---- Residence ----</span>
+<span class="ln" data-n="178"></span> 
+<span class="ln" data-n="179"></span>table1_residence <span class="op">&lt;-</span> <span class="fn">svyby</span>(
+<span class="ln" data-n="180"></span>  <span class="op">~</span><span class="fn">I</span>(V770 <span class="op">==</span> <span class="nu">1</span>),
+<span class="ln" data-n="181"></span>  <span class="op">~</span>V025,
+<span class="ln" data-n="182"></span>  study2_design,
+<span class="ln" data-n="183"></span>  svymean,
+<span class="ln" data-n="184"></span>  vartype = <span class="st">&quot;ci&quot;</span>,
+<span class="ln" data-n="185"></span>  na.rm = <span class="kw">TRUE</span>
+<span class="ln" data-n="186"></span>)
+<span class="ln" data-n="187"></span> 
+<span class="ln" data-n="188"></span>table1_residence
+<span class="ln" data-n="189"></span> 
+<span class="ln" data-n="190"></span> 
+<span class="ln" data-n="191"></span><span class="cm"># ---- Region ----</span>
+<span class="ln" data-n="192"></span> 
+<span class="ln" data-n="193"></span>table1_region <span class="op">&lt;-</span> <span class="fn">svyby</span>(
+<span class="ln" data-n="194"></span>  <span class="op">~</span><span class="fn">I</span>(V770 <span class="op">==</span> <span class="nu">1</span>),
+<span class="ln" data-n="195"></span>  <span class="op">~</span>V024,
+<span class="ln" data-n="196"></span>  study2_design,
+<span class="ln" data-n="197"></span>  svymean,
+<span class="ln" data-n="198"></span>  vartype = <span class="st">&quot;ci&quot;</span>,
+<span class="ln" data-n="199"></span>  na.rm = <span class="kw">TRUE</span>
+<span class="ln" data-n="200"></span>)
+<span class="ln" data-n="201"></span> 
+<span class="ln" data-n="202"></span>table1_region
+<span class="ln" data-n="203"></span> 
+<span class="ln" data-n="204"></span> 
+<span class="ln" data-n="205"></span><span class="cm"># ---- Age group ----</span>
+<span class="ln" data-n="206"></span> 
+<span class="ln" data-n="207"></span>table1_age <span class="op">&lt;-</span> <span class="fn">svyby</span>(
+<span class="ln" data-n="208"></span>  <span class="op">~</span><span class="fn">I</span>(V770 <span class="op">==</span> <span class="nu">1</span>),
+<span class="ln" data-n="209"></span>  <span class="op">~</span>V013,
+<span class="ln" data-n="210"></span>  study2_design,
+<span class="ln" data-n="211"></span>  svymean,
+<span class="ln" data-n="212"></span>  vartype = <span class="st">&quot;ci&quot;</span>,
+<span class="ln" data-n="213"></span>  na.rm = <span class="kw">TRUE</span>
+<span class="ln" data-n="214"></span>)
+<span class="ln" data-n="215"></span> 
+<span class="ln" data-n="216"></span>table1_age
+<span class="ln" data-n="217"></span> 
+<span class="ln" data-n="218"></span> 
+<span class="ln" data-n="219"></span><span class="cm"># ---- Marital/union status ----</span>
+<span class="ln" data-n="220"></span> 
+<span class="ln" data-n="221"></span>table1_marital <span class="op">&lt;-</span> <span class="fn">svyby</span>(
+<span class="ln" data-n="222"></span>  <span class="op">~</span><span class="fn">I</span>(V770 <span class="op">==</span> <span class="nu">1</span>),
+<span class="ln" data-n="223"></span>  <span class="op">~</span>V501,
+<span class="ln" data-n="224"></span>  study2_design,
+<span class="ln" data-n="225"></span>  svymean,
+<span class="ln" data-n="226"></span>  vartype = <span class="st">&quot;ci&quot;</span>,
+<span class="ln" data-n="227"></span>  na.rm = <span class="kw">TRUE</span>
+<span class="ln" data-n="228"></span>)
+<span class="ln" data-n="229"></span> 
+<span class="ln" data-n="230"></span>table1_marital
+<span class="ln" data-n="231"></span> 
+<span class="ln" data-n="232"></span> 
+<span class="ln" data-n="233"></span><span class="cm"># ---- Rao-Scott P-values ----</span>
+<span class="ln" data-n="234"></span> 
+<span class="ln" data-n="235"></span>p_education <span class="op">&lt;-</span> <span class="fn">svychisq</span>(
+<span class="ln" data-n="236"></span>  <span class="op">~</span>V106 <span class="op">+</span> V770,
+<span class="ln" data-n="237"></span>  study2_design,
+<span class="ln" data-n="238"></span>  statistic = <span class="st">&quot;F&quot;</span>
+<span class="ln" data-n="239"></span>)
+<span class="ln" data-n="240"></span> 
+<span class="ln" data-n="241"></span>p_wealth <span class="op">&lt;-</span> <span class="fn">svychisq</span>(
+<span class="ln" data-n="242"></span>  <span class="op">~</span>V190 <span class="op">+</span> V770,
+<span class="ln" data-n="243"></span>  study2_design,
+<span class="ln" data-n="244"></span>  statistic = <span class="st">&quot;F&quot;</span>
+<span class="ln" data-n="245"></span>)
+<span class="ln" data-n="246"></span> 
+<span class="ln" data-n="247"></span>p_residence <span class="op">&lt;-</span> <span class="fn">svychisq</span>(
+<span class="ln" data-n="248"></span>  <span class="op">~</span>V025 <span class="op">+</span> V770,
+<span class="ln" data-n="249"></span>  study2_design,
+<span class="ln" data-n="250"></span>  statistic = <span class="st">&quot;F&quot;</span>
+<span class="ln" data-n="251"></span>)
+<span class="ln" data-n="252"></span> 
+<span class="ln" data-n="253"></span>p_region <span class="op">&lt;-</span> <span class="fn">svychisq</span>(
+<span class="ln" data-n="254"></span>  <span class="op">~</span>V024 <span class="op">+</span> V770,
+<span class="ln" data-n="255"></span>  study2_design,
+<span class="ln" data-n="256"></span>  statistic = <span class="st">&quot;F&quot;</span>
+<span class="ln" data-n="257"></span>)
+<span class="ln" data-n="258"></span> 
+<span class="ln" data-n="259"></span>p_age <span class="op">&lt;-</span> <span class="fn">svychisq</span>(
+<span class="ln" data-n="260"></span>  <span class="op">~</span>V013 <span class="op">+</span> V770,
+<span class="ln" data-n="261"></span>  study2_design,
+<span class="ln" data-n="262"></span>  statistic = <span class="st">&quot;F&quot;</span>
+<span class="ln" data-n="263"></span>)
+<span class="ln" data-n="264"></span> 
+<span class="ln" data-n="265"></span>p_marital <span class="op">&lt;-</span> <span class="fn">svychisq</span>(
+<span class="ln" data-n="266"></span>  <span class="op">~</span>V501 <span class="op">+</span> V770,
+<span class="ln" data-n="267"></span>  study2_design,
+<span class="ln" data-n="268"></span>  statistic = <span class="st">&quot;F&quot;</span>
+<span class="ln" data-n="269"></span>)
+<span class="ln" data-n="270"></span> 
+<span class="ln" data-n="271"></span> 
+<span class="ln" data-n="272"></span>p_education
+<span class="ln" data-n="273"></span>p_wealth
+<span class="ln" data-n="274"></span>p_residence
+<span class="ln" data-n="275"></span>p_region
+<span class="ln" data-n="276"></span>p_age
+<span class="ln" data-n="277"></span>p_marital</code></pre><textarea hidden># ---- Education ----
+
+table1_education &lt;- svyby(
+  ~I(V770 == 1),
+  ~V106,
+  study2_design,
+  svymean,
+  vartype = &quot;ci&quot;,
+  na.rm = TRUE
+)
+
+table1_education
+
+
+# ---- Wealth ----
+
+table1_wealth &lt;- svyby(
+  ~I(V770 == 1),
+  ~V190,
+  study2_design,
+  svymean,
+  vartype = &quot;ci&quot;,
+  na.rm = TRUE
+)
+
+table1_wealth
+
+
+# ---- Residence ----
+
+table1_residence &lt;- svyby(
+  ~I(V770 == 1),
+  ~V025,
+  study2_design,
+  svymean,
+  vartype = &quot;ci&quot;,
+  na.rm = TRUE
+)
+
+table1_residence
+
+
+# ---- Region ----
+
+table1_region &lt;- svyby(
+  ~I(V770 == 1),
+  ~V024,
+  study2_design,
+  svymean,
+  vartype = &quot;ci&quot;,
+  na.rm = TRUE
+)
+
+table1_region
+
+
+# ---- Age group ----
+
+table1_age &lt;- svyby(
+  ~I(V770 == 1),
+  ~V013,
+  study2_design,
+  svymean,
+  vartype = &quot;ci&quot;,
+  na.rm = TRUE
+)
+
+table1_age
+
+
+# ---- Marital/union status ----
+
+table1_marital &lt;- svyby(
+  ~I(V770 == 1),
+  ~V501,
+  study2_design,
+  svymean,
+  vartype = &quot;ci&quot;,
+  na.rm = TRUE
+)
+
+table1_marital
+
+
+# ---- Rao-Scott P-values ----
+
+p_education &lt;- svychisq(
+  ~V106 + V770,
+  study2_design,
+  statistic = &quot;F&quot;
+)
+
+p_wealth &lt;- svychisq(
+  ~V190 + V770,
+  study2_design,
+  statistic = &quot;F&quot;
+)
+
+p_residence &lt;- svychisq(
+  ~V025 + V770,
+  study2_design,
+  statistic = &quot;F&quot;
+)
+
+p_region &lt;- svychisq(
+  ~V024 + V770,
+  study2_design,
+  statistic = &quot;F&quot;
+)
+
+p_age &lt;- svychisq(
+  ~V013 + V770,
+  study2_design,
+  statistic = &quot;F&quot;
+)
+
+p_marital &lt;- svychisq(
+  ~V501 + V770,
+  study2_design,
+  statistic = &quot;F&quot;
+)
+
+
+p_education
+p_wealth
+p_residence
+p_region
+p_age
+p_marital</textarea>
+</section><section id="s6">
+<h2><span class="num">7</span>Crude education model<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="284"></span>model_edu_crude <span class="op">&lt;-</span> <span class="fn">svyglm</span>(
+<span class="ln" data-n="285"></span>  V770 <span class="op">~</span> <span class="fn">factor</span>(V106),
+<span class="ln" data-n="286"></span>  design = study2_design,
+<span class="ln" data-n="287"></span>  family = <span class="fn">quasipoisson</span>(link = <span class="st">&quot;log&quot;</span>)
+<span class="ln" data-n="288"></span>)
+<span class="ln" data-n="289"></span> 
+<span class="ln" data-n="290"></span><span class="fn">summary</span>(model_edu_crude)
+<span class="ln" data-n="291"></span> 
+<span class="ln" data-n="292"></span><span class="fn">exp</span>(
+<span class="ln" data-n="293"></span>  <span class="fn">cbind</span>(
+<span class="ln" data-n="294"></span>    PR = <span class="fn">coef</span>(model_edu_crude),
+<span class="ln" data-n="295"></span>    <span class="fn">confint</span>(model_edu_crude)
+<span class="ln" data-n="296"></span>  )
+<span class="ln" data-n="297"></span>)</code></pre><textarea hidden>model_edu_crude &lt;- svyglm(
+  V770 ~ factor(V106),
+  design = study2_design,
+  family = quasipoisson(link = &quot;log&quot;)
+)
+
+summary(model_edu_crude)
+
+exp(
+  cbind(
+    PR = coef(model_edu_crude),
+    confint(model_edu_crude)
+  )
+)</textarea>
+</section><section id="s7">
+<h2><span class="num">8</span>Crude wealth model<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="304"></span>model_wealth_crude <span class="op">&lt;-</span> <span class="fn">svyglm</span>(
+<span class="ln" data-n="305"></span>  V770 <span class="op">~</span> <span class="fn">factor</span>(V190),
+<span class="ln" data-n="306"></span>  design = study2_design,
+<span class="ln" data-n="307"></span>  family = <span class="fn">quasipoisson</span>(link = <span class="st">&quot;log&quot;</span>)
+<span class="ln" data-n="308"></span>)
+<span class="ln" data-n="309"></span> 
+<span class="ln" data-n="310"></span><span class="fn">summary</span>(model_wealth_crude)
+<span class="ln" data-n="311"></span> 
+<span class="ln" data-n="312"></span><span class="fn">exp</span>(
+<span class="ln" data-n="313"></span>  <span class="fn">cbind</span>(
+<span class="ln" data-n="314"></span>    PR = <span class="fn">coef</span>(model_wealth_crude),
+<span class="ln" data-n="315"></span>    <span class="fn">confint</span>(model_wealth_crude)
+<span class="ln" data-n="316"></span>  )
+<span class="ln" data-n="317"></span>)</code></pre><textarea hidden>model_wealth_crude &lt;- svyglm(
+  V770 ~ factor(V190),
+  design = study2_design,
+  family = quasipoisson(link = &quot;log&quot;)
+)
+
+summary(model_wealth_crude)
+
+exp(
+  cbind(
+    PR = coef(model_wealth_crude),
+    confint(model_wealth_crude)
+  )
+)</textarea>
+</section><section id="s8">
+<h2><span class="num">9</span>Final multivariable model<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="324"></span>model_main <span class="op">&lt;-</span> <span class="fn">svyglm</span>(
+<span class="ln" data-n="325"></span>  V770 <span class="op">~</span> <span class="fn">factor</span>(V106) <span class="op">+</span>
+<span class="ln" data-n="326"></span>    <span class="fn">factor</span>(V190) <span class="op">+</span>
+<span class="ln" data-n="327"></span>    <span class="fn">factor</span>(V013) <span class="op">+</span>
+<span class="ln" data-n="328"></span>    <span class="fn">factor</span>(V025) <span class="op">+</span>
+<span class="ln" data-n="329"></span>    <span class="fn">factor</span>(V024) <span class="op">+</span>
+<span class="ln" data-n="330"></span>    <span class="fn">factor</span>(V501),
+<span class="ln" data-n="331"></span>  design = study2_design,
+<span class="ln" data-n="332"></span>  family = <span class="fn">quasipoisson</span>(link = <span class="st">&quot;log&quot;</span>)
+<span class="ln" data-n="333"></span>)
+<span class="ln" data-n="334"></span> 
+<span class="ln" data-n="335"></span> 
+<span class="ln" data-n="336"></span><span class="fn">summary</span>(model_main)
+<span class="ln" data-n="337"></span> 
+<span class="ln" data-n="338"></span> 
+<span class="ln" data-n="339"></span><span class="cm"># Adjusted prevalence ratios</span>
+<span class="ln" data-n="340"></span><span class="fn">exp</span>(
+<span class="ln" data-n="341"></span>  <span class="fn">cbind</span>(
+<span class="ln" data-n="342"></span>    aPR = <span class="fn">coef</span>(model_main),
+<span class="ln" data-n="343"></span>    <span class="fn">confint</span>(model_main)
+<span class="ln" data-n="344"></span>  )
+<span class="ln" data-n="345"></span>)</code></pre><textarea hidden>model_main &lt;- svyglm(
+  V770 ~ factor(V106) +
+    factor(V190) +
+    factor(V013) +
+    factor(V025) +
+    factor(V024) +
+    factor(V501),
+  design = study2_design,
+  family = quasipoisson(link = &quot;log&quot;)
+)
+
+
+summary(model_main)
+
+
+# Adjusted prevalence ratios
+exp(
+  cbind(
+    aPR = coef(model_main),
+    confint(model_main)
+  )
+)</textarea>
+</section><section id="s9">
+<h2><span class="num">10</span>Wealth trend analysis<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="352"></span>model_wealth_trend <span class="op">&lt;-</span> <span class="fn">svyglm</span>(
+<span class="ln" data-n="353"></span>  V770 <span class="op">~</span> V190 <span class="op">+</span>
+<span class="ln" data-n="354"></span>    <span class="fn">factor</span>(V106) <span class="op">+</span>
+<span class="ln" data-n="355"></span>    <span class="fn">factor</span>(V013) <span class="op">+</span>
+<span class="ln" data-n="356"></span>    <span class="fn">factor</span>(V025) <span class="op">+</span>
+<span class="ln" data-n="357"></span>    <span class="fn">factor</span>(V024) <span class="op">+</span>
+<span class="ln" data-n="358"></span>    <span class="fn">factor</span>(V501),
+<span class="ln" data-n="359"></span>  design = study2_design,
+<span class="ln" data-n="360"></span>  family = <span class="fn">quasipoisson</span>(link = <span class="st">&quot;log&quot;</span>)
+<span class="ln" data-n="361"></span>)
+<span class="ln" data-n="362"></span> 
+<span class="ln" data-n="363"></span> 
+<span class="ln" data-n="364"></span><span class="fn">summary</span>(model_wealth_trend)
+<span class="ln" data-n="365"></span> 
+<span class="ln" data-n="366"></span> 
+<span class="ln" data-n="367"></span><span class="fn">exp</span>(
+<span class="ln" data-n="368"></span>  <span class="fn">cbind</span>(
+<span class="ln" data-n="369"></span>    aPR = <span class="fn">coef</span>(model_wealth_trend),
+<span class="ln" data-n="370"></span>    <span class="fn">confint</span>(model_wealth_trend)
+<span class="ln" data-n="371"></span>  )
+<span class="ln" data-n="372"></span>)</code></pre><textarea hidden>model_wealth_trend &lt;- svyglm(
+  V770 ~ V190 +
+    factor(V106) +
+    factor(V013) +
+    factor(V025) +
+    factor(V024) +
+    factor(V501),
+  design = study2_design,
+  family = quasipoisson(link = &quot;log&quot;)
+)
+
+
+summary(model_wealth_trend)
+
+
+exp(
+  cbind(
+    aPR = coef(model_wealth_trend),
+    confint(model_wealth_trend)
+  )
+)</textarea>
+</section><section id="s10">
+<h2><span class="num">11</span>Condition/symptom burden<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="380"></span><span class="cm"># Weighted care-seeking prevalence by number of conditions</span>
+<span class="ln" data-n="381"></span> 
+<span class="ln" data-n="382"></span>burden_prevalence <span class="op">&lt;-</span> <span class="fn">svyby</span>(
+<span class="ln" data-n="383"></span>  <span class="op">~</span><span class="fn">I</span>(V770 <span class="op">==</span> <span class="nu">1</span>),
+<span class="ln" data-n="384"></span>  <span class="op">~</span><span class="fn">factor</span>(n_reported_conditions),
+<span class="ln" data-n="385"></span>  study2_design,
+<span class="ln" data-n="386"></span>  svymean,
+<span class="ln" data-n="387"></span>  vartype = <span class="st">&quot;ci&quot;</span>,
+<span class="ln" data-n="388"></span>  na.rm = <span class="kw">TRUE</span>
+<span class="ln" data-n="389"></span>)
+<span class="ln" data-n="390"></span> 
+<span class="ln" data-n="391"></span>burden_prevalence
+<span class="ln" data-n="392"></span> 
+<span class="ln" data-n="393"></span> 
+<span class="ln" data-n="394"></span><span class="cm"># Rao-Scott test</span>
+<span class="ln" data-n="395"></span> 
+<span class="ln" data-n="396"></span><span class="fn">svychisq</span>(
+<span class="ln" data-n="397"></span>  <span class="op">~</span>care_sought <span class="op">+</span> burden_cat,
+<span class="ln" data-n="398"></span>  study2_design,
+<span class="ln" data-n="399"></span>  statistic = <span class="st">&quot;F&quot;</span>
+<span class="ln" data-n="400"></span>)</code></pre><textarea hidden># Weighted care-seeking prevalence by number of conditions
+
+burden_prevalence &lt;- svyby(
+  ~I(V770 == 1),
+  ~factor(n_reported_conditions),
+  study2_design,
+  svymean,
+  vartype = &quot;ci&quot;,
+  na.rm = TRUE
+)
+
+burden_prevalence
+
+
+# Rao-Scott test
+
+svychisq(
+  ~care_sought + burden_cat,
+  study2_design,
+  statistic = &quot;F&quot;
+)</textarea>
+</section><section id="s11">
+<h2><span class="num">12</span>Crude burden model<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="407"></span>model_burden_crude <span class="op">&lt;-</span> <span class="fn">svyglm</span>(
+<span class="ln" data-n="408"></span>  care_sought <span class="op">~</span> burden_cat,
+<span class="ln" data-n="409"></span>  design = study2_design,
+<span class="ln" data-n="410"></span>  family = <span class="fn">quasipoisson</span>(link = <span class="st">&quot;log&quot;</span>)
+<span class="ln" data-n="411"></span>)
+<span class="ln" data-n="412"></span> 
+<span class="ln" data-n="413"></span> 
+<span class="ln" data-n="414"></span><span class="fn">summary</span>(model_burden_crude)
+<span class="ln" data-n="415"></span> 
+<span class="ln" data-n="416"></span> 
+<span class="ln" data-n="417"></span><span class="fn">exp</span>(
+<span class="ln" data-n="418"></span>  <span class="fn">cbind</span>(
+<span class="ln" data-n="419"></span>    PR = <span class="fn">coef</span>(model_burden_crude),
+<span class="ln" data-n="420"></span>    <span class="fn">confint</span>(model_burden_crude)
+<span class="ln" data-n="421"></span>  )
+<span class="ln" data-n="422"></span>)</code></pre><textarea hidden>model_burden_crude &lt;- svyglm(
+  care_sought ~ burden_cat,
+  design = study2_design,
+  family = quasipoisson(link = &quot;log&quot;)
+)
+
+
+summary(model_burden_crude)
+
+
+exp(
+  cbind(
+    PR = coef(model_burden_crude),
+    confint(model_burden_crude)
+  )
+)</textarea>
+</section><section id="s12">
+<h2><span class="num">13</span>Adjusted burden model<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="429"></span>model_burden_adj <span class="op">&lt;-</span> <span class="fn">svyglm</span>(
+<span class="ln" data-n="430"></span>  care_sought <span class="op">~</span> burden_cat <span class="op">+</span>
+<span class="ln" data-n="431"></span>    <span class="fn">factor</span>(V106) <span class="op">+</span>
+<span class="ln" data-n="432"></span>    <span class="fn">factor</span>(V190) <span class="op">+</span>
+<span class="ln" data-n="433"></span>    <span class="fn">factor</span>(V013) <span class="op">+</span>
+<span class="ln" data-n="434"></span>    <span class="fn">factor</span>(V025) <span class="op">+</span>
+<span class="ln" data-n="435"></span>    <span class="fn">factor</span>(V024) <span class="op">+</span>
+<span class="ln" data-n="436"></span>    <span class="fn">factor</span>(V501),
+<span class="ln" data-n="437"></span>  design = study2_design,
+<span class="ln" data-n="438"></span>  family = <span class="fn">quasipoisson</span>(link = <span class="st">&quot;log&quot;</span>)
+<span class="ln" data-n="439"></span>)
+<span class="ln" data-n="440"></span> 
+<span class="ln" data-n="441"></span> 
+<span class="ln" data-n="442"></span><span class="fn">summary</span>(model_burden_adj)
+<span class="ln" data-n="443"></span> 
+<span class="ln" data-n="444"></span> 
+<span class="ln" data-n="445"></span><span class="fn">exp</span>(
+<span class="ln" data-n="446"></span>  <span class="fn">cbind</span>(
+<span class="ln" data-n="447"></span>    aPR = <span class="fn">coef</span>(model_burden_adj),
+<span class="ln" data-n="448"></span>    <span class="fn">confint</span>(model_burden_adj)
+<span class="ln" data-n="449"></span>  )
+<span class="ln" data-n="450"></span>)</code></pre><textarea hidden>model_burden_adj &lt;- svyglm(
+  care_sought ~ burden_cat +
+    factor(V106) +
+    factor(V190) +
+    factor(V013) +
+    factor(V025) +
+    factor(V024) +
+    factor(V501),
+  design = study2_design,
+  family = quasipoisson(link = &quot;log&quot;)
+)
+
+
+summary(model_burden_adj)
+
+
+exp(
+  cbind(
+    aPR = coef(model_burden_adj),
+    confint(model_burden_adj)
+  )
+)</textarea>
+</section><section id="s13">
+<h2><span class="num">14</span>Burden trend model<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="457"></span>model_burden_trend <span class="op">&lt;-</span> <span class="fn">svyglm</span>(
+<span class="ln" data-n="458"></span>  care_sought <span class="op">~</span> n_reported_conditions <span class="op">+</span>
+<span class="ln" data-n="459"></span>    <span class="fn">factor</span>(V106) <span class="op">+</span>
+<span class="ln" data-n="460"></span>    <span class="fn">factor</span>(V190) <span class="op">+</span>
+<span class="ln" data-n="461"></span>    <span class="fn">factor</span>(V013) <span class="op">+</span>
+<span class="ln" data-n="462"></span>    <span class="fn">factor</span>(V025) <span class="op">+</span>
+<span class="ln" data-n="463"></span>    <span class="fn">factor</span>(V024) <span class="op">+</span>
+<span class="ln" data-n="464"></span>    <span class="fn">factor</span>(V501),
+<span class="ln" data-n="465"></span>  design = study2_design,
+<span class="ln" data-n="466"></span>  family = <span class="fn">quasipoisson</span>(link = <span class="st">&quot;log&quot;</span>)
+<span class="ln" data-n="467"></span>)
+<span class="ln" data-n="468"></span> 
+<span class="ln" data-n="469"></span> 
+<span class="ln" data-n="470"></span><span class="fn">summary</span>(model_burden_trend)
+<span class="ln" data-n="471"></span> 
+<span class="ln" data-n="472"></span> 
+<span class="ln" data-n="473"></span><span class="fn">exp</span>(
+<span class="ln" data-n="474"></span>  <span class="fn">cbind</span>(
+<span class="ln" data-n="475"></span>    aPR = <span class="fn">coef</span>(model_burden_trend),
+<span class="ln" data-n="476"></span>    <span class="fn">confint</span>(model_burden_trend)
+<span class="ln" data-n="477"></span>  )
+<span class="ln" data-n="478"></span>)</code></pre><textarea hidden>model_burden_trend &lt;- svyglm(
+  care_sought ~ n_reported_conditions +
+    factor(V106) +
+    factor(V190) +
+    factor(V013) +
+    factor(V025) +
+    factor(V024) +
+    factor(V501),
+  design = study2_design,
+  family = quasipoisson(link = &quot;log&quot;)
+)
+
+
+summary(model_burden_trend)
+
+
+exp(
+  cbind(
+    aPR = coef(model_burden_trend),
+    confint(model_burden_trend)
+  )
+)</textarea>
+</section><section id="s14">
+<h2><span class="num">15</span>Sources of advice/treatment<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="485"></span>source_vars <span class="op">&lt;-</span> <span class="fn">grep</span>(
+<span class="ln" data-n="486"></span>  <span class="st">&quot;^V770[A-Z]&quot;</span>,
+<span class="ln" data-n="487"></span>  <span class="fn">names</span>(study2_data),
+<span class="ln" data-n="488"></span>  value = <span class="kw">TRUE</span>
+<span class="ln" data-n="489"></span>)
+<span class="ln" data-n="490"></span> 
+<span class="ln" data-n="491"></span> 
+<span class="ln" data-n="492"></span>source_summary <span class="op">&lt;-</span> <span class="fn">data.frame</span>(
+<span class="ln" data-n="493"></span>  Variable = source_vars,
+<span class="ln" data-n="494"></span>  
+<span class="ln" data-n="495"></span>  Source = <span class="fn">sapply</span>(
+<span class="ln" data-n="496"></span>    study2_data[source_vars],
+<span class="ln" data-n="497"></span>    <span class="kw">function</span>(x) <span class="fn">attr</span>(x, <span class="st">&quot;label&quot;</span>)
+<span class="ln" data-n="498"></span>  ),
+<span class="ln" data-n="499"></span>  
+<span class="ln" data-n="500"></span>  n = <span class="fn">sapply</span>(
+<span class="ln" data-n="501"></span>    study2_data[source_vars],
+<span class="ln" data-n="502"></span>    <span class="kw">function</span>(x) <span class="fn">sum</span>(x <span class="op">==</span> <span class="nu">1</span>, na.rm = <span class="kw">TRUE</span>)
+<span class="ln" data-n="503"></span>  )
+<span class="ln" data-n="504"></span>)
+<span class="ln" data-n="505"></span> 
+<span class="ln" data-n="506"></span> 
+<span class="ln" data-n="507"></span><span class="cm"># Unweighted percentage among those who sought care</span>
+<span class="ln" data-n="508"></span>source_summary<span class="op">$</span>Percent_unweighted_among_seekers <span class="op">&lt;-</span>
+<span class="ln" data-n="509"></span>  source_summary<span class="op">$</span>n <span class="op">/</span>
+<span class="ln" data-n="510"></span>  <span class="fn">sum</span>(study2_data<span class="op">$</span>V770 <span class="op">==</span> <span class="nu">1</span>) <span class="op">*</span>
+<span class="ln" data-n="511"></span>  <span class="nu">100</span>
+<span class="ln" data-n="512"></span> 
+<span class="ln" data-n="513"></span> 
+<span class="ln" data-n="514"></span>source_summary</code></pre><textarea hidden>source_vars &lt;- grep(
+  &quot;^V770[A-Z]&quot;,
+  names(study2_data),
+  value = TRUE
+)
+
+
+source_summary &lt;- data.frame(
+  Variable = source_vars,
+  
+  Source = sapply(
+    study2_data[source_vars],
+    function(x) attr(x, &quot;label&quot;)
+  ),
+  
+  n = sapply(
+    study2_data[source_vars],
+    function(x) sum(x == 1, na.rm = TRUE)
+  )
+)
+
+
+# Unweighted percentage among those who sought care
+source_summary$Percent_unweighted_among_seekers &lt;-
+  source_summary$n /
+  sum(study2_data$V770 == 1) *
+  100
+
+
+source_summary</textarea>
+</section><section id="s15">
+<h2><span class="num">16</span>Survey-weighted source-of-care estimates<button class="copy" type="button" aria-label="Copy code">Copy</button></h2>
+<pre><code><span class="ln" data-n="521"></span>seekers_design <span class="op">&lt;-</span> <span class="fn">subset</span>(
+<span class="ln" data-n="522"></span>  study2_design,
+<span class="ln" data-n="523"></span>  V770 <span class="op">==</span> <span class="nu">1</span>
+<span class="ln" data-n="524"></span>)
+<span class="ln" data-n="525"></span> 
+<span class="ln" data-n="526"></span> 
+<span class="ln" data-n="527"></span>source_weighted <span class="op">&lt;-</span> <span class="fn">lapply</span>(
+<span class="ln" data-n="528"></span>  source_vars,
+<span class="ln" data-n="529"></span>  <span class="kw">function</span>(v) {
+<span class="ln" data-n="530"></span>    
+<span class="ln" data-n="531"></span>    f <span class="op">&lt;-</span> <span class="fn">as.formula</span>(
+<span class="ln" data-n="532"></span>      <span class="fn">paste0</span>(<span class="st">&quot;~&quot;</span>, v)
+<span class="ln" data-n="533"></span>    )
+<span class="ln" data-n="534"></span>    
+<span class="ln" data-n="535"></span>    est <span class="op">&lt;-</span> <span class="fn">svymean</span>(
+<span class="ln" data-n="536"></span>      f,
+<span class="ln" data-n="537"></span>      seekers_design,
+<span class="ln" data-n="538"></span>      na.rm = <span class="kw">TRUE</span>
+<span class="ln" data-n="539"></span>    )
+<span class="ln" data-n="540"></span>    
+<span class="ln" data-n="541"></span>    ci <span class="op">&lt;-</span> <span class="fn">confint</span>(est)
+<span class="ln" data-n="542"></span>    
+<span class="ln" data-n="543"></span>    <span class="fn">data.frame</span>(
+<span class="ln" data-n="544"></span>      Variable = v,
+<span class="ln" data-n="545"></span>      n = <span class="fn">sum</span>(
+<span class="ln" data-n="546"></span>        study2_data[study2_data<span class="op">$</span>V770 <span class="op">==</span> <span class="nu">1</span>, v] <span class="op">==</span> <span class="nu">1</span>,
+<span class="ln" data-n="547"></span>        na.rm = <span class="kw">TRUE</span>
+<span class="ln" data-n="548"></span>      ),
+<span class="ln" data-n="549"></span>      Weighted_percent =
+<span class="ln" data-n="550"></span>        <span class="fn">as.numeric</span>(<span class="fn">coef</span>(est)) <span class="op">*</span> <span class="nu">100</span>,
+<span class="ln" data-n="551"></span>      Lower_CI =
+<span class="ln" data-n="552"></span>        <span class="fn">as.numeric</span>(ci[, <span class="nu">1</span>]) <span class="op">*</span> <span class="nu">100</span>,
+<span class="ln" data-n="553"></span>      Upper_CI =
+<span class="ln" data-n="554"></span>        <span class="fn">as.numeric</span>(ci[, <span class="nu">2</span>]) <span class="op">*</span> <span class="nu">100</span>
+<span class="ln" data-n="555"></span>    )
+<span class="ln" data-n="556"></span>  }
+<span class="ln" data-n="557"></span>)
+<span class="ln" data-n="558"></span> 
+<span class="ln" data-n="559"></span> 
+<span class="ln" data-n="560"></span>source_weighted <span class="op">&lt;-</span> <span class="fn">bind_rows</span>(
+<span class="ln" data-n="561"></span>  source_weighted
+<span class="ln" data-n="562"></span>)
+<span class="ln" data-n="563"></span> 
+<span class="ln" data-n="564"></span> 
+<span class="ln" data-n="565"></span>source_weighted</code></pre><textarea hidden>seekers_design &lt;- subset(
+  study2_design,
+  V770 == 1
+)
+
+
+source_weighted &lt;- lapply(
+  source_vars,
+  function(v) {
+    
+    f &lt;- as.formula(
+      paste0(&quot;~&quot;, v)
+    )
+    
+    est &lt;- svymean(
+      f,
+      seekers_design,
+      na.rm = TRUE
+    )
+    
+    ci &lt;- confint(est)
+    
+    data.frame(
+      Variable = v,
+      n = sum(
+        study2_data[study2_data$V770 == 1, v] == 1,
+        na.rm = TRUE
+      ),
+      Weighted_percent =
+        as.numeric(coef(est)) * 100,
+      Lower_CI =
+        as.numeric(ci[, 1]) * 100,
+      Upper_CI =
+        as.numeric(ci[, 2]) * 100
+    )
+  }
+)
+
+
+source_weighted &lt;- bind_rows(
+  source_weighted
+)
+
+
+source_weighted</textarea>
+</section><section id="s16" class="end"><h2><span class="num">17</span>End of core study 2 analysis</h2></section>
+</main>
+<footer>Survey-weighted analyses use the complex sampling design (clusters V021, strata V022, weights V005/1,000,000).</footer>
+</div>
+<script>
+document.querySelectorAll(".copy").forEach(b=>b.addEventListener("click",()=>{
+ const t=b.closest("section").querySelector("textarea").value;
+ navigator.clipboard.writeText(t).then(()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1500)}).catch(()=>{});
+}));
+</script>
+</body></html>
